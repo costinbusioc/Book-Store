@@ -1,54 +1,41 @@
 import sqlite3
 
-def open_connection():
-    conn = sqlite3.connect("books.db")
-    cur = conn.cursor()
+class Database: 
 
-    return (conn, cur)
+    def __init__(self, db):
+        self.conn = sqlite3.connect(db)
+        self.cur = self.conn.cursor()
 
-def close_connection(conn):
-    conn.commit()
-    conn.close()
+        self.cur.execute("CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY, title text, author text, year integer, isbn integer)")
+        self.conn.commit()
 
-def connect():
-    (conn, cur) = open_connection()
+    def insert(self, title, author, year, isbn):
+        self.cur.execute("INSERT INTO books VALUES (NULL, ?, ?, ?, ?)", (title, author,
+            year, isbn))
+        self.conn.commit()
 
-    cur.execute("CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY, title text, author text, year integer, isbn integer)")
-    close_connection(conn)
+    def view(self):
+        self.cur.execute("SELECT * FROM books")
+        rows = self.cur.fetchall()
 
-def insert(title, author, year, isbn):
-    (conn, cur) = open_connection()
-    cur.execute("INSERT INTO books VALUES (NULL, ?, ?, ?, ?)", (title, author,
-        year, isbn))
-    close_connection(conn)
+        self.conn.commit()
 
-def view():
-    (conn, cur) = open_connection()
+        return rows
 
-    cur.execute("SELECT * FROM books")
-    rows = cur.fetchall()
+    def search(self, title = "", author = "", year = "", isbn = ""):
+        self.cur.execute("SELECT * FROM books WHERE title = ? OR author = ? OR year = ? OR isbn = ?", (title, author, year, isbn))
+        
+        rows = self.cur.fetchall()
 
-    close_connection(conn)
+        return rows
 
-    return rows
+    def delete(self, id):
+        self.cur.execute("DELETE FROM books WHERE id = ?", (id,))
+        self.conn.commit()
 
-def search(title = "", author = "", year = "", isbn = ""):
-    (conn, cur) = open_connection()
-    cur.execute("SELECT * FROM books WHERE title = ? OR author = ? OR year = ? OR isbn = ?", (title, author, year, isbn))
-    
-    rows = cur.fetchall()
-    close_connection(conn)
+    def update(self, id, title, author, year, isbn):
+        self.cur.execute("UPDATE books SET title = ?, author = ?, year = ?, isbn = ? WHERE id = ?", ( title, author, year, isbn, id))
+        self.conn.commit()
 
-    return rows
-
-def delete(id):
-    (conn, cur) = open_connection()
-    cur.execute("DELETE FROM books WHERE id = ?", (id,))
-    close_connection(conn)
-
-def update(id, title, author, year, isbn):
-    (conn, cur) = open_connection()
-    cur.execute("UPDATE books SET title = ?, author = ?, year = ?, isbn = ? WHERE id = ?", ( title, author, year, isbn, id))
-    close_connection(conn)
-
-connect()
+    def __del__(self):
+        self.conn.close()
