@@ -15,4 +15,4 @@ User can:
 * Delete
 * Close
     
-The project was developed following the cours "The Python Mega Course" on Udemy. It uses a database stored in "books.db" file. For the first operations, the file will be automatically created with no content.
+The project was developed following the course "The Python Mega Course" on Udemy. It uses a database stored in "books.db" file. For the first operations, the file will be automatically created with no content.
